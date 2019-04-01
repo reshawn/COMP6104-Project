@@ -4,11 +4,15 @@ import java.io.*;
 public class Frame implements java.io.Serializable {
 	public byte sequence_number;
 	public byte error_detection;
+	public String startFlag;
+	public String endFlag;
 
 
     public Frame(byte seq, byte error) {
-		sequence_number = seq;
-		error_detection = error;
+		this.sequence_number = seq;
+		this.error_detection = error;
+		this.startFlag = "7E";
+		this.endFlag = "7E";
     }
 
     public byte getSequence_num(){
