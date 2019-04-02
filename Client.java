@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.*;
 
 public class Client {
-	private static ArrayList<String> packets = new ArrayList<String>();
+	private static ArrayList<Frame> packets = new ArrayList<Frame>();
 	private static int packetCount = 0;
 		
 	public static void main(String[] args) 
@@ -52,6 +52,7 @@ public class Client {
 
 			Scanner scanner = new Scanner(new File("raw.out.txt"));
 			System.out.println("Loading packets from raw.out file");
+			
 			String line = scanner.nextLine();
 			int count = 0;
 			packetCount = Integer.parseInt(line);
@@ -59,10 +60,11 @@ public class Client {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
+				Frame frame = new Frame(Integer.toString(count), "???", parts[1]);
 				int len = Integer.parseInt(parts[0]);
 				System.out.println("Packet number: "+count+" Len: "+len);
-				System.out.println("Packet: "+parts[1]);
-				packets.add(parts[1]);
+				System.out.println("Packet: "+frame);
+				packets.add(frame);
 			}
 		} catch (Exception e) {
 		// System.out.println(e.printStackTrace());

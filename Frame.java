@@ -2,24 +2,26 @@ import java.util.*;
 import java.io.*;
 
 public class Frame implements java.io.Serializable {
-	public byte sequence_number;
-	public byte error_detection;
+	public String sequence_number;
+	public String error_detection;
+	public String payload;
 	public String startFlag;
 	public String endFlag;
 
 
-    public Frame(byte seq, byte error) {
+    public Frame(String seq, String error, String payload) {
 		this.sequence_number = seq;
 		this.error_detection = error;
+		this.payload = payload;
 		this.startFlag = "7E";
 		this.endFlag = "7E";
     }
 
-    public byte getSequence_num(){
+    public String getSequence_num(){
     	return sequence_number;
     }
 
-    public byte getError_det(){
+    public String getError_det(){
     	return error_detection;
     }
 
