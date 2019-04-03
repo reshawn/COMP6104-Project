@@ -5,9 +5,10 @@ import java.util.*;
 public class Client {
 	private static ArrayList<Frame> packets = new ArrayList<Frame>();
 	private static int packetCount = 0;
-		
-	public static void main(String[] args) 
-	throws IOException {
+	public static String typee = "data";
+
+	public static void main(String[] args)
+			throws IOException {
 		try {readPackets();}catch(Exception e){System.out.println(e);}
 
 		InetAddress addr = InetAddress.getByName("localhost");
@@ -20,20 +21,20 @@ public class Client {
 		try {
 			System.out.println("socket = " + socket);
 			BufferedReader in =
-				new BufferedReader(
-						new InputStreamReader(
-								socket.getInputStream()));
+					new BufferedReader(
+							new InputStreamReader(
+									socket.getInputStream()));
 
 
 			PrintWriter out =
-				new PrintWriter(
-						new BufferedWriter(
-								new OutputStreamWriter(
-										socket.getOutputStream())),true);
+					new PrintWriter(
+							new BufferedWriter(
+									new OutputStreamWriter(
+											socket.getOutputStream())),true);
 
-			
-	       
-			
+
+
+
 			String TextToCode = "Infornation Technology";
 			out.println(TextToCode);
 			out.println("END");
@@ -52,7 +53,7 @@ public class Client {
 
 			Scanner scanner = new Scanner(new File("raw.out.txt"));
 			System.out.println("Loading packets from raw.out file");
-			
+
 			String line = scanner.nextLine();
 			int count = 0;
 			packetCount = Integer.parseInt(line);
@@ -60,14 +61,14 @@ public class Client {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
-				Frame frame = new Frame(Integer.toString(count), "???", parts[1]);
+				Frame frame = new Frame(Integer.toString(count), "???", parts[1], typee);
 				int len = Integer.parseInt(parts[0]);
 				System.out.println("Packet number: "+count+" Len: "+len);
 				System.out.println("Packet: "+frame);
 				packets.add(frame);
 			}
 		} catch (Exception e) {
-		// System.out.println(e.printStackTrace());
+			// System.out.println(e.printStackTrace());
 		}
 	}
 
@@ -99,5 +100,4 @@ public class Client {
 //		}
 //		return "0123456789ABCDEF".charAt(nybble);
 //	}
-} 
-
+}

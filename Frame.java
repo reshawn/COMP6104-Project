@@ -7,23 +7,26 @@ public class Frame implements java.io.Serializable {
 	public String payload;
 	public String startFlag;
 	public String endFlag;
+	public String type;
 
 
-    public Frame(String seq, String error, String payload) {
+	public Frame(String seq, String error, String payload, String typeronie) {
 		this.sequence_number = seq;
 		this.error_detection = error;
 		this.payload = payload;
 		this.startFlag = "7E";
 		this.endFlag = "7E";
-    }
+		this.type = typeronie;
+		//this.type = "data";
+	}
 
-    public String getSequence_num(){
-    	return sequence_number;
-    }
+	public String getSequence_num(){
+		return sequence_number;
+	}
 
-    public String getError_det(){
-    	return error_detection;
-    }
+	public String getError_det(){
+		return error_detection;
+	}
 
 
 	public String toString(){
