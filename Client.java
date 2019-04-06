@@ -63,7 +63,7 @@ public class Client {
 			String line = scanner.nextLine();
 			int count = 0;
 			packetCount = Integer.parseInt(line);
-			while (scanner.hasNextLine()) {
+			// while (scanner.hasNextLine()) {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
@@ -71,17 +71,18 @@ public class Client {
 				int len = Integer.parseInt(parts[0]);
 				//System.out.println("Packet number: "+count+" Len: "+len);
 				//System.out.println("Packet: "+frame);
-				String checksum = xorHex(parts[1],len);
+				String checksum = xorHex(parts[1]);
 				System.out.println(checksum);
 				//packets.add(frame);
-			}
+			// }
 		} catch (Exception e) {
 			// System.out.println(e.printStackTrace());
 		}
 	}
 
-	public static String xorHex(String frame, int length){
+	public static String xorHex(String frame){
 		int iter = 0;
+		int length = frame.length();
 		char[] result = new char[length];
 		System.out.println(frame +" " + length);
 //		while(iter < frame.length()){
@@ -90,15 +91,12 @@ public class Client {
 //			//iter++;
 //		}
 		result[0] = frame.charAt(0);
-		System.out.println(result[0]);
-		for(int i =0; i<length; i++){
-			System.out.println(fromHex(result[i]) ^ fromHex(frame.charAt(i+1)));
-			//System.out.println(fromHex(frame.charAt(i)) + "  , " + fromHex(frame.charAt(i+1)) + " , " + toHex(fromHex(result[i]) ^ fromHex(frame.charAt(i+1))) );
-			//result[i] = toHex(fromHex(result[i]) ^ fromHex(frame.charAt(i+1)));
-			//result[i+1] = result[i];
+		for(int i =0; i<length-1; i++){
+			System.out.println(Integer.parseInt(Character.toString(result[i]),16) + "  , " + Integer.parseInt(Character.toString(frame.charAt(i+1)),16) + " , " + toHex(Integer.parseInt(Character.toString(result[i]),16) ^ Integer.parseInt(Character.toString(frame.charAt(i+1)),16)) );
+			char r = toHex(Integer.parseInt(Character.toString(result[i]),16) ^ Integer.parseInt(Character.toString(frame.charAt(i+1)),16 ));
+			result[i+1] = r;
 		}
-		//System.out.println(frame.length()+" "+ result);
-		return new String(result);
+		return new String(""+result[length-2]+result[length-1]);
 	}
 //	public String xorHex(String a, String b) {
 //		// TODO: Validation
@@ -110,6 +108,7 @@ public class Client {
 //	}
 //
 	private static int fromHex(char c) {
+		
 		if (c >= '0' && c <= '9') {
 			return c - '0';
 		}
