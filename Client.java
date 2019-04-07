@@ -11,39 +11,38 @@ public class Client {
 
 	public static void main(String[] args)
 			throws IOException {
-		try
-		{
+		try{
 			readPackets();
 		}catch(Exception e){System.out.println(e);}
 
-		//InetAddress addr = InetAddress.getByName("localhost");
+		InetAddress addr = InetAddress.getByName("localhost");
 
 
-		//System.out.println("addr = " + addr);
+		System.out.println("addr = " + addr);
 
-		//Socket socket = new Socket(addr, 7020);
+		Socket socket = new Socket(addr, 7020);
 
 		try {
 //
-//			System.out.println("socket = " + socket);
-//			BufferedReader in =
-//					new BufferedReader(
-//							new InputStreamReader(
-//									socket.getInputStream()));
-//
-//
-//			PrintWriter out =
-//					new PrintWriter(
-//							new BufferedWriter(
-//									new OutputStreamWriter(
-//											socket.getOutputStream())),true);
-//
-//
-//
-//
-//			String TextToCode = "Infornation Technology";
-//			out.println(TextToCode);
-//			out.println("END");
+			System.out.println("socket = " + socket);
+			BufferedReader in =
+					new BufferedReader(
+							new InputStreamReader(
+									socket.getInputStream()));
+
+
+			PrintWriter out =
+					new PrintWriter(
+							new BufferedWriter(
+									new OutputStreamWriter(
+											socket.getOutputStream())),true);
+
+
+
+
+			String TextToCode = "Infornation Technology";
+			out.println(TextToCode);
+			out.println("END");
 		}
 		catch (Exception e)
 		{
@@ -63,7 +62,8 @@ public class Client {
 			String line = scanner.nextLine();
 			int count = 0;
 			packetCount = Integer.parseInt(line);
-			// while (scanner.hasNextLine()) {
+			System.out.println("Reading packets from file");
+			while (scanner.hasNextLine()) {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
@@ -72,9 +72,10 @@ public class Client {
 				//System.out.println("Packet number: "+count+" Len: "+len);
 				//System.out.println("Packet: "+frame);
 				String checksum = xorHex(parts[1]);
-				System.out.println(checksum);
-				//packets.add(frame);
-			// }
+				// System.out.println(checksum);
+				packets.add(frame);
+			}
+			System.out.println("Finished reading packets from file.");
 		} catch (Exception e) {
 			// System.out.println(e.printStackTrace());
 		}
@@ -84,41 +85,14 @@ public class Client {
 		int iter = 0;
 		int length = frame.length();
 		char[] result = new char[length];
-		System.out.println(frame +" " + length);
-//		while(iter < frame.length()){
-//			result[iter] = toHex(fromHex(frame.charAt(iter)) ^ fromHex(frame.charAt(iter+1)));
-//			//result[iter++] = result[iter];
-//			//iter++;
-//		}
+		// System.out.println(frame +" " + length);
 		result[0] = frame.charAt(0);
 		for(int i =0; i<length-1; i++){
-			System.out.println(Integer.parseInt(Character.toString(result[i]),16) + "  , " + Integer.parseInt(Character.toString(frame.charAt(i+1)),16) + " , " + toHex(Integer.parseInt(Character.toString(result[i]),16) ^ Integer.parseInt(Character.toString(frame.charAt(i+1)),16)) );
+			// System.out.println(Integer.parseInt(Character.toString(result[i]),16) + "  , " + Integer.parseInt(Character.toString(frame.charAt(i+1)),16) + " , " + toHex(Integer.parseInt(Character.toString(result[i]),16) ^ Integer.parseInt(Character.toString(frame.charAt(i+1)),16)) );
 			char r = toHex(Integer.parseInt(Character.toString(result[i]),16) ^ Integer.parseInt(Character.toString(frame.charAt(i+1)),16 ));
 			result[i+1] = r;
 		}
 		return new String(""+result[length-2]+result[length-1]);
-	}
-//	public String xorHex(String a, String b) {
-//		// TODO: Validation
-//		char[] chars = new char[a.length()];
-//		for (int i = 0; i < chars.length; i++) {
-//			chars[i] = toHex(fromHex(a.charAt(i)) ^ fromHex(b.charAt(i)));
-//		}
-//		return new String(chars);
-//	}
-//
-	private static int fromHex(char c) {
-		
-		if (c >= '0' && c <= '9') {
-			return c - '0';
-		}
-		if (c >= 'A' && c <= 'F') {
-			return c - 'A' + 10;
-		}
-		if (c >= 'a' && c <= 'f') {
-			return c - 'a' + 10;
-		}
-		throw new IllegalArgumentException();
 	}
 
 	private static char toHex(int nibble) {
