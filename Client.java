@@ -37,11 +37,11 @@ public class Client {
 									new OutputStreamWriter(
 											socket.getOutputStream())),true);
 
-
-
-
 			String TextToCode = "Infornation Technology";
-			out.println(TextToCode);
+			for (int i=0; i<packetCount-1;i++){
+				out.println(packets.get(i));
+			}
+			
 			out.println("END");
 		}
 		catch (Exception e)
@@ -49,7 +49,7 @@ public class Client {
 
 		} finally {
 			System.out.println("closing...");
-			// socket.close();
+			socket.close();
 		}
 	}
 
@@ -67,11 +67,12 @@ public class Client {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
-				Frame frame = new Frame(Integer.toString(count), "???", parts[1], typee);
+				
 				int len = Integer.parseInt(parts[0]);
 				//System.out.println("Packet number: "+count+" Len: "+len);
 				//System.out.println("Packet: "+frame);
 				String checksum = xorHex(parts[1]);
+				Frame frame = new Frame(Integer.toString(count), checksum, parts[1], typee);
 				// System.out.println(checksum);
 				packets.add(frame);
 			}

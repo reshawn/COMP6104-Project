@@ -1,9 +1,11 @@
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class Server{  
 
   public static final int PORT = 7020;
+  private static ArrayList<Frame> packets = new ArrayList<Frame>();
    
   public static void main(String[] args) throws IOException {
 
@@ -29,7 +31,10 @@ public class Server{
         while (true) {  
           String str = in.readLine();
           if (str.equals("END")) 
-		     break;
+		      break;
+          String[] parts = str.split(" ");
+          Frame frame = new Frame(parts[1], parts[2], parts[3], parts[4]);
+          packets.add(frame);
           System.out.println("Echoing: " + str);
           out.println(str);
         }
