@@ -26,7 +26,7 @@ public class Frame implements java.io.Serializable {
 
 
 	public String toString(){
-		return new String(startFlag+" "+sequence_number + " " + error_detection+" "+payload+" "+type+" "+endFlag);
+		return new String(" "+sequence_number + " " + error_detection+" "+payload+" "+type);
 	}
 
 
