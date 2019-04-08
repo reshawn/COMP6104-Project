@@ -1,16 +1,19 @@
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-
+//import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
-	private static ArrayList<Frame> packets = new ArrayList<Frame>();
+	private static ArrayList<Frame> packets = new ArrayList<Frame>(); // this arraylist stores all the frames that were read in from the file
 	private static int packetCount = 0;
 	public static String typee = "data";
 
 	public static void main(String[] args)
 			throws IOException {
+			//Timer timer = new Timer(); 	///////////////TIMERRRRRRRRR
+
 		try{
 			readPackets();
 		}catch(Exception e){System.out.println(e);}
@@ -39,9 +42,18 @@ public class Client {
 
 			String TextToCode = "Infornation Technology";
 			for (int i=0; i<packetCount-1;i++){
+				long start1 = System.nanoTime();	//starts a timer in nano-seconds yo
 				out.println(packets.get(i));
-			}
-			
+				long end1 = System.nanoTime();		//records the time it ends yo
+
+				long elapsed_time = end1-start1;	//elapsed time
+				double seconds = (double)elapsed_time;	//changed to seconds
+
+					if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
+						out.println(packets.get(i));
+					}
+			} // sends frames to server
+
 			out.println("END");
 		}
 		catch (Exception e)
@@ -67,7 +79,7 @@ public class Client {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
-				
+
 				int len = Integer.parseInt(parts[0]);
 				//System.out.println("Packet number: "+count+" Len: "+len);
 				//System.out.println("Packet: "+frame);
@@ -101,11 +113,5 @@ public class Client {
 			throw new IllegalArgumentException();
 		}
 		return "0123456789ABCDEF".charAt(nibble);
-	}
-
-	public static String byteStuff(Frame input){
-		String startFlag = "7E";
-		String endFlag = "7E";
-		return ""+startFlag+input+endFlag;
 	}
 }
