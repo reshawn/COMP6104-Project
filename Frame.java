@@ -5,8 +5,6 @@ public class Frame implements java.io.Serializable {
 	public String sequence_number;
 	public String error_detection;
 	public String payload;
-	public String startFlag;
-	public String endFlag;
 	public String type;
 
 
@@ -14,8 +12,6 @@ public class Frame implements java.io.Serializable {
 		this.sequence_number = seq;
 		this.error_detection = error;
 		this.payload = payload;
-		this.startFlag = "7E";
-		this.endFlag = "7E";
 		this.type = typeronie;
 		//this.type = "data";
 	}
@@ -30,7 +26,7 @@ public class Frame implements java.io.Serializable {
 
 
 	public String toString(){
-		return new String(startFlag+" "+sequence_number + " " + error_detection+" "+payload+" "+type+" "+endFlag);
+		return new String(" "+sequence_number + " " + error_detection+" "+payload+" "+type);
 	}
 
 

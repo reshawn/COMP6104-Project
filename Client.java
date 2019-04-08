@@ -102,4 +102,10 @@ public class Client {
 		}
 		return "0123456789ABCDEF".charAt(nibble);
 	}
+
+	public static String byteStuff(Frame input){
+		String startFlag = "7E";
+		String endFlag = "7E";
+		return ""+startFlag+input+endFlag;
+	}
 }
