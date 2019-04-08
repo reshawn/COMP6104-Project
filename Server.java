@@ -55,7 +55,13 @@ public class Server{
             Frame ACK = new Frame(parts[1], parts[1], "", "ACK");
             out.println(ACK);
             sendToNetwork.write(frame.toString()); sendToNetwork.newLine();
-            log.write("Frame received."); log.newLine();
+            
+            if (isDuplicate(frame)){
+              log.write("Duplicate frame received."); log.newLine();
+            }
+            else {
+              log.write("Frame received."); log.newLine();
+            }
           }
           else {
             //log frame received in error here
@@ -76,6 +82,14 @@ public class Server{
       s.close();
     }
   } 
+
+  private static boolean isDuplicate(Frame f){
+    for(int i=0; i<packets.size();i++){
+      if (f.getSequence_num().equals(packets.get(i).getSequence_num()))
+        return true;
+    }
+    return false;
+  }
 
   private static String xorHex(String frame){
 		int iter = 0;
