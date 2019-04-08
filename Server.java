@@ -48,7 +48,7 @@ public class Server{
 		        break;
           } 
           String[] parts = str.split(" ");
-          Frame frame = new Frame(parts[1], parts[2], parts[3], parts[4]);
+          Frame frame = unstuffPacket(str);
           String checksum = xorHex(parts[3]);
           if (checksum.equals(parts[2])){
             //send to network layer
@@ -81,6 +81,17 @@ public class Server{
     } finally {
       s.close();
     }
+  }
+
+  public static Frame unstuffPacket(String packet){
+    String[] parts = packet.split(" ");
+    String seq = parts[1];
+    String errorCode = parts[2];
+    String payload = parts[3];
+    String type = parts[4];
+    Frame frame = new Frame(seq, errorCode,payload, type );
+    return frame;
+  }
   } 
 
   private static boolean isDuplicate(Frame f){
