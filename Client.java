@@ -82,7 +82,7 @@ public class Client {
 		}
 	}
 
-	public static String xorHex(String frame){
+	private static String xorHex(String frame){
 		int iter = 0;
 		int length = frame.length();
 		char[] result = new char[length];
