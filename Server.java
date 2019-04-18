@@ -40,6 +40,7 @@ public class Server{
           logfile.createNewFile();
         }
         BufferedWriter log = new BufferedWriter(new FileWriter(logfile));
+        int ackCount = 0;
         while (true) {  
           String str = in.readLine();
           if (str.equals("END")){
@@ -52,9 +53,23 @@ public class Server{
           String checksum = xorHex(parts[3]);
           if (checksum.equals(parts[2])){
             //send to network layer
-            Frame ACK = new Frame(parts[1], parts[1], "", "ACK");
+            
+            ackCount++;
+
+            if (ackCount%8==0){
+              //force server error transmission
+              int incorrectErrDet = flipBits(parts[1]);
+              Frame ACK = new Frame(parts[1], incorrectErrDet, "", "ACK");
+            }
+            else {
+              //send ack correctly
+              ACK = new Frame(parts[1], parts[1], "", "ACK");
+            }
+            
             out.println(ACK);
+            log.write("ACK sent."); log.newLine();
             sendToNetwork.write(frame.toString()); sendToNetwork.newLine();
+            log.write("Packet sent to network layer."); log.newLine();
             
             if (isDuplicate(frame)){
               log.write("Duplicate frame received."); log.newLine();
@@ -70,7 +85,7 @@ public class Server{
 
           packets.add(frame);
           
-          out.println(str);
+          // out.println(str);
         }
 
        
@@ -92,7 +107,7 @@ public class Server{
     Frame frame = new Frame(seq, errorCode,payload, type );
     return frame;
   }
-  } 
+
 
   private static boolean isDuplicate(Frame f){
     for(int i=0; i<packets.size();i++){
@@ -121,5 +136,9 @@ public class Server{
 		}
 		return "0123456789ABCDEF".charAt(nibble);
 	}
+
+  private static int flipBits(int n){
+    return ~n;
+  }
   
 } 
