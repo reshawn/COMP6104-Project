@@ -49,42 +49,32 @@ public class Client {
 				long start1;
 				long end1;
 				long elapsed_time;
+				Frame sendPacket = packets.get(i);
 				if (packetCounter%5==0){
 					int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
 					String flipError = Integer.toHexString(error);
-					Frame ACK = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, "ACK","");
-					//Frame ACK = new Frame(packets.get(i).sequence_number, "1", packets.get(i).payload, "ACK");
-					start1 = System.nanoTime();
-					out.println(ACK);
-					end1 = System.nanoTime();
-					elapsed_time = end1-start1;
-					if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
-						out.println(packets.get(i));
-					}
+					sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, "ACK","");
 				}
-				else{
-					start1 = System.nanoTime();	//starts a timer in nano-seconds yo
-					out.println(packets.get(i));
-					end1 = System.nanoTime();		//records the time it ends yo
 
-					elapsed_time = end1-start1;	//elapsed time
-					double seconds = (double)elapsed_time;	//changed to seconds
-					if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
-						out.println(packets.get(i));
-					}
-				}
+				start1 =System.currentTimeMillis();
+				out.println(sendPacket);
 				String serverAck = in.readLine();
-				//System.out.println(in.readLine());
+				end1 = System.currentTimeMillis();
 				String[] ackParts = serverAck.split(" ");  //ack[4] is the ack type, either error or ACK
 				System.out.println(ackParts[4]);
 				if(ackParts[4].equalsIgnoreCase("ERROR")){
 					out.println(packets.get(i));
 				}
 				else{
-					continue;
+					//continue;
+				}
+				elapsed_time = end1-start1;
+				if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
+					out.println(packets.get(i));
 				}
 
-
+				//System.out.println(in.readLine());
+				
 			} // sends frames to server
 
 			out.println("END");
