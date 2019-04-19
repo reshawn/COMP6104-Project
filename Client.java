@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class Client {
 	private static ArrayList<Frame> packets = new ArrayList<Frame>(); // this arraylist stores all the frames that were read in from the file
 	private static int packetCount = 0;
+	private static int frameCount = 0;
 	public static String typee = "data";
 
 	public static void main(String[] args)
@@ -41,7 +42,7 @@ public class Client {
 											socket.getOutputStream())),true);
 
 			String TextToCode = "Infornation Technology";
-			for (int i=0; i<packetCount-1;i++){
+			for (int i=0; i<frameCount-1;i++){
 				long start1 = System.nanoTime();	//starts a timer in nano-seconds yo
 				out.println(packets.get(i));
 				long end1 = System.nanoTime();		//records the time it ends yo
@@ -83,11 +84,33 @@ public class Client {
 				int len = Integer.parseInt(parts[0]);
 				//System.out.println("Packet number: "+count+" Len: "+len);
 				//System.out.println("Packet: "+frame);
-				String checksum = xorHex(parts[1]);
-				Frame frame = new Frame(Integer.toString(count), checksum, parts[1], typee);
+				char c = parts[1].charAt(0);
+				int ccount = 1;
+				String l = new String();
+				while (ccount<(len*2)){
+					if ((ccount%120)>0){
+						l+= c;
+						c = parts[1].charAt(ccount);
+						ccount++;
+					}
+					else {
+						String checksum = xorHex(l);
+						Frame frame = new Frame(Integer.toString(count), checksum, l, typee, "N");
+						count++;
+						packets.add(frame);
+						l = new String();
+						l+=c;
+						c = parts[1].charAt(ccount);
+						ccount++;
+					}
+				}
+				String checksum = xorHex(l);
+				Frame frame = new Frame(Integer.toString(count), checksum, l, typee, "Y");
 				// System.out.println(checksum);
 				packets.add(frame);
 			}
+			frameCount = count;
+			System.out.println("fc:"+frameCount);
 			System.out.println("Finished reading packets from file.");
 		} catch (Exception e) {
 			// System.out.println(e.printStackTrace());
