@@ -9,6 +9,7 @@ public class Server{
 
   public static final int PORT = 7020;
   private static ArrayList<Frame> packets = new ArrayList<Frame>();
+  private static String packet = new String();
    
   public static void main(String[] args) throws IOException {
 
@@ -43,11 +44,6 @@ public class Server{
         int ackCount = 0;
         while (true) {  
           String str = in.readLine();
-          if (str.equals("END")){
-            sendToNetwork.close();
-            log.close();
-		        break;
-          } 
           String[] parts = str.split(" ");
           Frame frame = unstuffPacket(str);
           String checksum = xorHex(parts[3]);
@@ -58,17 +54,28 @@ public class Server{
             Frame ACK;
             if (ackCount%8==0){
               //force server error transmission
-              int incorrectErrDet = flipBits( Integer.parseInt(parts[1]));
-              ACK = new Frame(parts[1], ""+incorrectErrDet, "", "ERROR");
+              String incorrectErrDet = Integer.toString(flipBits(Integer.parseInt(parts[1])));
+              ACK = new Frame(parts[1], incorrectErrDet, "", "ACK", "");
             }
             else {
               //send ack correctly
-              ACK = new Frame(parts[1], parts[1], "", "ACK");
+              ACK = new Frame(parts[1], parts[1], "", "ACK", "");
             }
             
             out.println(ACK);
             log.write("ACK sent."); log.newLine();
-            sendToNetwork.write(frame.toString()); sendToNetwork.newLine();
+
+            //reassemble packet
+            
+            System.out.println("frame:"+frame.toString());
+            if (frame.getEoP().equals("N")){
+              packet+= frame.getPayload();
+            }
+            else {
+              packet += frame.getPayload();
+              // System.out.println("packet:"+packet);
+              sendToNetwork.write(packet); sendToNetwork.newLine();
+            }
             log.write("Packet sent to network layer."); log.newLine();
             
             if (isDuplicate(frame)){
@@ -89,7 +96,10 @@ public class Server{
         }
 
        
-      } finally {
+      } catch(Exception e){
+        System.out.println("Client disconnected, terminating server.");
+        
+      }finally {
         System.out.println("closing...");
         socket.close();
       }
@@ -104,7 +114,8 @@ public class Server{
     String errorCode = parts[2];
     String payload = parts[3];
     String type = parts[4];
-    Frame frame = new Frame(seq, errorCode,payload, type );
+    String eopb = parts[5];
+    Frame frame = new Frame(seq, errorCode,payload, type, eopb );
     return frame;
   }
 
