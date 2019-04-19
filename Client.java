@@ -52,7 +52,7 @@ public class Client {
 				if (packetCounter%5==0){
 					int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
 					String flipError = Integer.toHexString(error);
-					Frame ACK = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, "ACK");
+					Frame ACK = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, "ACK","");
 					//Frame ACK = new Frame(packets.get(i).sequence_number, "1", packets.get(i).payload, "ACK");
 					start1 = System.nanoTime();
 					out.println(ACK);
