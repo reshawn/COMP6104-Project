@@ -114,4 +114,8 @@ public class Client {
 		}
 		return "0123456789ABCDEF".charAt(nibble);
 	}
+
+	private static int flipBits(int n){
+		return ~n;
+	}
 }

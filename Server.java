@@ -55,11 +55,11 @@ public class Server{
             //send to network layer
             
             ackCount++;
-
+            Frame ACK;
             if (ackCount%8==0){
               //force server error transmission
-              int incorrectErrDet = flipBits(parts[1]);
-              Frame ACK = new Frame(parts[1], incorrectErrDet, "", "ACK");
+              int incorrectErrDet = flipBits( Integer.parseInt(parts[1]));
+              ACK = new Frame(parts[1], ""+incorrectErrDet, "", "ACK");
             }
             else {
               //send ack correctly
