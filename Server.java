@@ -9,7 +9,7 @@ public class Server{
 
   public static final int PORT = 7020;
   private static ArrayList<Frame> packets = new ArrayList<Frame>();
-  private static String packet = new String();
+  private static String packet = "";
    
   public static void main(String[] args) throws IOException {
 
@@ -42,6 +42,7 @@ public class Server{
         }
         BufferedWriter log = new BufferedWriter(new FileWriter(logfile));
         int ackCount = 0;
+        System.out.println("Accepting packets from server.");
         while (true) {  
           String str = in.readLine();
           String[] parts = str.split(" ");
@@ -67,30 +68,35 @@ public class Server{
 
             //reassemble packet
             
-            System.out.println("frame:"+frame.toString());
-            if (frame.getEoP().equals("N")){
-              packet+= frame.getPayload();
-            }
-            else {
-              packet += frame.getPayload();
-              // System.out.println("packet:"+packet);
-              sendToNetwork.write(packet); sendToNetwork.newLine();
-            }
-            log.write("Packet sent to network layer."); log.newLine();
-            
+            // System.out.println("frame:"+frame.toString());
             if (isDuplicate(frame)){
               log.write("Duplicate frame received."); log.newLine();
             }
             else {
+              packets.add(frame);
               log.write("Frame received."); log.newLine();
+              if (frame.getEoP().equals("N")){
+                packet+= frame.getPayload();
+              }
+              else {
+                packet += frame.getPayload();
+                // System.out.println("packet:"+packet);
+                sendToNetwork.write(packet); sendToNetwork.newLine();
+                log.write("Packet sent to network layer."); log.newLine();
+                packet = "";
+              }
             }
+            
+            
+            
+            
           }
           else {
             //log frame received in error here
             log.write("Frame received in error."); log.newLine();
           }
 
-          packets.add(frame);
+          
           
           // out.println(str);
         }
@@ -149,7 +155,13 @@ public class Server{
 	}
 
   private static int flipBits(int n){
-    return ~n;
+		String bin = Integer.toString(n,2);
+
+		bin = bin.replaceAll("0", "x");
+		bin = bin.replaceAll("1", "0");
+		bin = bin.replaceAll("x", "1");
+		int dec = Integer.parseInt(bin,2);
+		return dec;
   }
   
 } 

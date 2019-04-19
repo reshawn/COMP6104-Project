@@ -42,7 +42,7 @@ public class Client {
 									new OutputStreamWriter(
 											socket.getOutputStream())),true);
 
-			String TextToCode = "Infornation Technology";
+			System.out.println("Sending packets to server.");
 			for (int i=0; i<frameCount-1;i++){
 				packetCounter++;
 //				Frame ACK;
@@ -53,25 +53,39 @@ public class Client {
 				if (packetCounter%5==0){
 					int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
 					String flipError =Integer.toHexString(error);
-					System.out.println(packets.get(i).error_detection+" flipped- "+flipError);
-					//sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, packets.get(i).type,packets.get(i).end_of_packet_byte);
+					// System.out.println(packets.get(i).error_detection+" flipped- "+flipError);
+					// System.out.println(sendPacket);
+					sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, packets.get(i).type,packets.get(i).end_of_packet_byte);
+					// System.out.println(packets.get(i).end_of_packet_byte);
+					// System.out.println(sendPacket);
 				}
-
-				start1 =System.currentTimeMillis();
+				// System.out.println(sendPacket);
 				out.println(sendPacket);
-				String serverAck = in.readLine();
-				end1 = System.currentTimeMillis();
+				
+				socket.setSoTimeout(200);
+				String serverAck = " ";
+				while(serverAck.equals(" ")){
+					try {
+						serverAck = in.readLine();
+						// System.out.println(serverAck);
+					}
+					catch(SocketTimeoutException e){
+						// System.out.println("resending");
+						out.println(packets.get(i));
+					}
+				}
+				
+				socket.setSoTimeout(0);
+				// System.out.println("sendPacket");
 				String[] ackParts = serverAck.split(" ");  //ack[4] is the ack type, either error or ACK
-				System.out.println(ackParts[4]);
-				if(ackParts[4].equalsIgnoreCase("ERROR")){
+				// System.out.println(ackParts[4]);
+				String chs = packets.get(i).sequence_number;
+				
+				while(!ackParts[2].equals(chs)){
 					out.println(packets.get(i));
-				}
-				else{
-					//continue;
-				}
-				elapsed_time = end1-start1;
-				if(elapsed_time>2000){			//checks to see if the elapsed time is > 2 then the frame is resent
-					out.println(packets.get(i));
+					serverAck = in.readLine();
+					// System.out.println(serverAck);
+					ackParts = serverAck.split(" ");
 				}
 
 				//System.out.println(in.readLine());
@@ -161,6 +175,12 @@ public class Client {
 	}
 
 	private static int flipBits(int n){
-		return (Math.abs(~n + 1));
+		String bin = Integer.toString(n,2);
+
+		bin = bin.replaceAll("0", "x");
+		bin = bin.replaceAll("1", "0");
+		bin = bin.replaceAll("x", "1");
+		int dec = Integer.parseInt(bin,2);
+		return dec;
 	}
 }
