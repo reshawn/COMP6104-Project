@@ -43,7 +43,7 @@ public class Client {
 											socket.getOutputStream())),true);
 
 			String TextToCode = "Infornation Technology";
-			for (int i=0; i<packetCount-1;i++){
+			for (int i=0; i<frameCount-1;i++){
 				packetCounter++;
 //				Frame ACK;
 				long start1;
@@ -52,8 +52,9 @@ public class Client {
 				Frame sendPacket = packets.get(i);
 				if (packetCounter%5==0){
 					int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
-					String flipError = Integer.toHexString(error);
-					sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, "ACK","");
+					String flipError =Integer.toHexString(error);
+					System.out.println(packets.get(i).error_detection+" flipped- "+flipError);
+					//sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, packets.get(i).type,packets.get(i).end_of_packet_byte);
 				}
 
 				start1 =System.currentTimeMillis();
@@ -69,12 +70,12 @@ public class Client {
 					//continue;
 				}
 				elapsed_time = end1-start1;
-				if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
+				if(elapsed_time>2000){			//checks to see if the elapsed time is > 2 then the frame is resent
 					out.println(packets.get(i));
 				}
 
 				//System.out.println(in.readLine());
-				
+
 			} // sends frames to server
 
 			out.println("END");
@@ -160,6 +161,6 @@ public class Client {
 	}
 
 	private static int flipBits(int n){
-		return ~n;
+		return (Math.abs(~n + 1));
 	}
 }
