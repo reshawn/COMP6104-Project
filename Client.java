@@ -1,3 +1,8 @@
+/*Student Names:Jedidiah Aqui
+ *				Reshawn Ramjattan
+ *				Nirvan Sharma
+ *
+ */
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -49,85 +54,75 @@ public class Client {
 									new OutputStreamWriter(
 											socket.getOutputStream())),true);
 
-				int packetNum = 1;
-				int frameNum = 1;
-				for (int i=0; i<frameCount-1;i++){
-					packetCounter++;
-					long start1;
-					long end1;
-					long elapsed_time;
-					record.write("Sending packets of frames : Packet "+packetNum+", Frame "+frameNum);
-					record.newLine();
-					frameNum++;
-					if(packets.get(i).end_of_packet_byte.equalsIgnoreCase("Y")){
-						packetNum++;
-						frameNum= 1;
+			System.out.println("Sending packets to server.");
+			int packetNum = 1;
+			int frameNum = 1;
+			for (int i=0; i<frameCount-1;i++){
+				packetCounter++;
+//				Frame ACK;
+				record.write("Sending packets of frames : Packet "+packetNum+", Frame "+frameNum);
+				record.newLine();
+				frameNum++;
+				if(packets.get(i).end_of_packet_byte.equalsIgnoreCase("Y")){
+					packetNum++;
+					frameNum= 1;
+				}
+				Frame sendPacket = packets.get(i);
+				if (packetCounter%5==0){
+					int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
+					String flipError =Integer.toHexString(error);
+					// System.out.println(packets.get(i).error_detection+" flipped- "+flipError);
+
+					record.write(packets.get(i).error_detection+" flipped- "+flipError);
+					record.newLine();//records the flipped error-detection field of the frame
+
+					sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, packets.get(i).type,packets.get(i).end_of_packet_byte);
+
+				}
+				// System.out.println(sendPacket);
+				out.println(sendPacket);
+
+
+
+				socket.setSoTimeout(200);
+				String serverAck = " ";
+				while(serverAck.equals(" ")){
+					try {
+						serverAck = in.readLine();
+						record.write("" + serverAck);
+						record.newLine();
+						// System.out.println(serverAck);
 					}
-						if (packetCounter%5==0){
-							int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
-							String flipError =Integer.toHexString(error);
+					catch(SocketTimeoutException e){
+						// System.out.println("resending");
+						out.println(packets.get(i)); // sends packet back to server
+						record.write("Timer expired, resending frame " + packets.get(i) +" to server.");
+						record.newLine();
+					}
+				}
 
-							System.out.println(packets.get(i).error_detection+" flipped- "+flipError);
-							record.write(packets.get(i).error_detection+" flipped- "+flipError);
-							record.newLine();//records the flipped error-detection field of the frame
-							//sendPacket = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, packets.get(i).type,packets.get(i).end_of_packet_byte);
-							sendPacket = packets.get(i);
-							//System.out.println(sendPacket.error_detection);
-							//sendPacket.error_detection = flipError;
-							flag = 1; // if flag is 1 error detection recorded in client.log
-						}else
-							sendPacket = packets.get(i);
+				socket.setSoTimeout(0);
+				// System.out.println("sendPacket");
+				String[] ackParts = serverAck.split(" ");  //ack[4] is the ack type, either error or ACK
+				// System.out.println(ackParts[4]);
+				String chs = packets.get(i).sequence_number;
 
+				while(!ackParts[2].equals(chs)){
+					out.println(packets.get(i));
+					record.write("Wrong Ack " + ackParts[2]);
+					record.newLine();
 
+					serverAck = in.readLine(); // receives ack from server when the client ack matches the checksum
+					record.write("Checksum matched, recieved Ack from server" + serverAck);
+					record.newLine();
 
-					start1 =System.currentTimeMillis(); //start time
-						out.println(sendPacket); // it sent up to the fifth frame with the error, but the server does not receive it :(
+					// System.out.println(serverAck);
+					ackParts = serverAck.split(" ");
+				}
 
-							if(flag==1){ //error detection recorded in client.log
-								record.write("Frame sent with flipped Error-Detection value");
-								record.newLine();
-								record.newLine();
-								flag = 0;
-							}else{
-								record.write("Frame sent successfully.");
-								record.newLine();
-							}
+				//System.out.println(in.readLine());
 
-						String serverAck = in.readLine();
-						record.write("ACK recieved");
-						record.newLine();	//logs the receiving of an ack
-						ackError++;
-							if(ackError == 8){ //pulls the errorAck from the Server and logs the receipt of the error ACK
-								record.write("ACK" + serverAck + "recieved in error");
-								record.newLine();
-								record.newLine();
-								ackError = 0;
-							}
-							delay_count++;
-
-							if(delay_count==50){
-								TimeUnit.MILLISECONDS.sleep(250);
-								delay_count=0;
-							}// a delay occurs every 50 ACKS
-
-					end1 = System.currentTimeMillis();	//end time
-					String[] ackParts = serverAck.split(" ");  //ack[4] is the ack type, either error or ACK
-					System.out.println(ackParts[4]);
-						if(ackParts[4].equalsIgnoreCase("ERROR")){
-							out.println(packets.get(i));
-						}
-						else{
-							//continue;
-						}
-					elapsed_time = end1-start1; //calculates the elapsed time to gauge if the time limit was exceeded
-
-						if(elapsed_time>200){			//checks to see if the elapsed time is > 2 then the frame is resent
-							out.println(packets.get(i));
-							record.write("Time Limit exceeded,Frame resent.");
-							record.newLine();
-						}
-
-			} // sends frames to server, end of for loop
+			} // sends frames to server
 
 			out.println("END");
 		}//end of try/catch
@@ -237,8 +232,11 @@ public class Client {
 
 
 	private static int flipBits(int n){
-		return (Math.abs(~n + 1));
-	}// end of flipBits function
-
-
-}//end of Client Class
+		String bin = Integer.toString(n,2);
+		bin = bin.replaceAll("0", "x");
+		bin = bin.replaceAll("1", "0");
+		bin = bin.replaceAll("x", "1");
+		int dec = Integer.parseInt(bin,2);
+		return dec;
+	}
+}
