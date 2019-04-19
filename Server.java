@@ -59,7 +59,7 @@ public class Server{
             if (ackCount%8==0){
               //force server error transmission
               int incorrectErrDet = flipBits( Integer.parseInt(parts[1]));
-              ACK = new Frame(parts[1], ""+incorrectErrDet, "", "ACK");
+              ACK = new Frame(parts[1], ""+incorrectErrDet, "", "ERROR");
             }
             else {
               //send ack correctly

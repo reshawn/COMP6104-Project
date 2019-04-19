@@ -9,7 +9,7 @@ public class Client {
 	private static ArrayList<Frame> packets = new ArrayList<Frame>(); // this arraylist stores all the frames that were read in from the file
 	private static int packetCount = 0;
 	public static String typee = "data";
-
+	private static int packetCounter = 0;
 	public static void main(String[] args)
 			throws IOException {
 			//Timer timer = new Timer(); 	///////////////TIMERRRRRRRRR
@@ -21,13 +21,14 @@ public class Client {
 		InetAddress addr = InetAddress.getByName("localhost");
 
 
-		System.out.println("addr = " + addr);
+		//System.out.println("addr = " + addr);
 
 		Socket socket = new Socket(addr, 7020);
 
 		try {
 //
-			System.out.println("socket = " + socket);
+			//System.out.println("socket = " + socket);
+
 			BufferedReader in =
 					new BufferedReader(
 							new InputStreamReader(
@@ -42,16 +43,47 @@ public class Client {
 
 			String TextToCode = "Infornation Technology";
 			for (int i=0; i<packetCount-1;i++){
-				long start1 = System.nanoTime();	//starts a timer in nano-seconds yo
-				out.println(packets.get(i));
-				long end1 = System.nanoTime();		//records the time it ends yo
-
-				long elapsed_time = end1-start1;	//elapsed time
-				double seconds = (double)elapsed_time;	//changed to seconds
-
+				packetCounter++;
+//				Frame ACK;
+				long start1;
+				long end1;
+				long elapsed_time;
+				if (packetCounter%5==0){
+					int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
+					String flipError = Integer.toHexString(error);
+					Frame ACK = new Frame(packets.get(i).sequence_number,flipError, packets.get(i).payload, "ACK");
+					//Frame ACK = new Frame(packets.get(i).sequence_number, "1", packets.get(i).payload, "ACK");
+					start1 = System.nanoTime();
+					out.println(ACK);
+					end1 = System.nanoTime();
+					elapsed_time = end1-start1;
 					if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
 						out.println(packets.get(i));
 					}
+				}
+				else{
+					start1 = System.nanoTime();	//starts a timer in nano-seconds yo
+					out.println(packets.get(i));
+					end1 = System.nanoTime();		//records the time it ends yo
+
+					elapsed_time = end1-start1;	//elapsed time
+					double seconds = (double)elapsed_time;	//changed to seconds
+					if(elapsed_time>2){			//checks to see if the elapsed time is > 2 then the frame is resent
+						out.println(packets.get(i));
+					}
+				}
+				String serverAck = in.readLine();
+				//System.out.println(in.readLine());
+				String[] ackParts = serverAck.split(" ");  //ack[4] is the ack type, either error or ACK
+				System.out.println(ackParts[4]);
+				if(ackParts[4].equalsIgnoreCase("ERROR")){
+					out.println(packets.get(i));
+				}
+				else{
+					continue;
+				}
+
+
 			} // sends frames to server
 
 			out.println("END");
@@ -70,7 +102,6 @@ public class Client {
 
 			Scanner scanner = new Scanner(new File("raw.out.txt"));
 			System.out.println("Loading packets from raw.out file");
-
 			String line = scanner.nextLine();
 			int count = 0;
 			packetCount = Integer.parseInt(line);
@@ -79,7 +110,6 @@ public class Client {
 				count++;
 				line = scanner.nextLine();
 				String[] parts = line.split(" ");
-
 				int len = Integer.parseInt(parts[0]);
 				//System.out.println("Packet number: "+count+" Len: "+len);
 				//System.out.println("Packet: "+frame);
@@ -87,6 +117,7 @@ public class Client {
 				Frame frame = new Frame(Integer.toString(count), checksum, parts[1], typee);
 				// System.out.println(checksum);
 				packets.add(frame);
+
 			}
 			System.out.println("Finished reading packets from file.");
 		} catch (Exception e) {

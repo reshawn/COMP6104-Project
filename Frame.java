@@ -29,6 +29,7 @@ public class Frame implements java.io.Serializable {
 		return new String(" "+sequence_number + " " + error_detection+" "+payload+" "+type);
 	}
 
-
-
+	public String getPayload() {
+		return payload;
+	}
 }// end of class
