@@ -49,13 +49,20 @@ public class Client {
 									new OutputStreamWriter(
 											socket.getOutputStream())),true);
 
-
+				int packetNum = 1;
+				int frameNum = 1;
 				for (int i=0; i<frameCount-1;i++){
 					packetCounter++;
 					long start1;
 					long end1;
 					long elapsed_time;
-
+					record.write("Sending packets of frames : Packet "+packetNum+", Frame "+frameNum);
+					record.newLine();
+					frameNum++;
+					if(packets.get(i).end_of_packet_byte.equalsIgnoreCase("Y")){
+						packetNum++;
+						frameNum= 1;
+					}
 						if (packetCounter%5==0){
 							int error = flipBits(Integer.parseInt(packets.get(i).error_detection,16));
 							String flipError =Integer.toHexString(error);
